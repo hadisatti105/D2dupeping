@@ -10,7 +10,7 @@ document.getElementById('phoneForm').addEventListener('submit', async function (
     return;
   }
 
-  const apiUrl = `http://127.0.0.1:3000/submit/${encodeURIComponent(phone)}`;
+  const apiUrl = `https://d2dupeping.onrender.com/submit/${encodeURIComponent(phone)}`;
 
   try {
     const response = await fetch(apiUrl);
