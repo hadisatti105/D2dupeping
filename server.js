@@ -1,22 +1,23 @@
 const express = require('express');
 const cors = require('cors');
-
-const app = express();
 const path = require('path');
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Initialize Express app
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const PORT = 3000;
-
-// Allow requests from your frontend
+// Enable Cross-Origin requests (safe for most environments)
 app.use(cors());
 
-// Simple check route
+// Serve static frontend files from /public (e.g. index.html, script.js)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Health check route (optional, root path)
 app.get('/', (req, res) => {
-  res.send('✅ Ping Web Form Server is Running');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Submit route to proxy to the external API
+// API proxy route: GET /submit/:phone
 app.get('/submit/:phone', async (req, res) => {
   const phone = req.params.phone;
 
@@ -25,24 +26,23 @@ app.get('/submit/:phone', async (req, res) => {
   console.log(`➡️ Calling external API: ${apiUrl}`);
 
   try {
-    const response = await fetch(apiUrl); // ✅ Native fetch
+    const response = await fetch(apiUrl); // Native fetch in Node.js v18+
     const resultText = await response.text();
 
     if (!response.ok) {
-      console.error(`❌ API Error ${response.status}: ${resultText}`);
+      console.error(`❌ External API Error (${response.status}): ${resultText}`);
       return res.status(response.status).send(`External API error: ${resultText}`);
     }
 
     console.log(`✅ API Success: ${resultText}`);
     res.status(200).send(resultText);
-
   } catch (error) {
     console.error('❌ Server Error:', error.message);
     res.status(500).send(`Server Error: ${error.message}`);
   }
 });
 
-// Start server
+// Start the server
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running at http://127.0.0.1:${PORT}`);
+  console.log(`🚀 Server is running at http://localhost:${PORT}`);
 });
